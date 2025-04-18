@@ -1,0 +1,708 @@
+import tkinter as tk
+import tkinter.ttk as ttk
+from tkinter import messagebox, filedialog
+import requests
+import base64
+import os
+import time
+import glob
+from datetime import datetime
+
+# External libraries
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from docx import Document
+import pandas as pd
+import numpy as np
+
+#################################
+#         MAIN APPLICATION      #
+#################################
+class TraceApp(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Trace")
+        self.geometry("900x600")
+
+        # Keep track of dark mode state
+        self.dark_mode_enabled = True
+
+        # -- Top Frame for "Run Case" button
+        top_frame = ttk.Frame(self)
+        top_frame.pack(side="top", fill="x", pady=5)
+
+        self.run_case_button = ttk.Button(top_frame, text="Run Case", command=self.run_selected_tabs)
+        self.run_case_button.pack(side="right", padx=10)
+
+        # -- Notebook container
+        self.container = ttk.Notebook(self)
+        self.container.pack(fill="both", expand=True)
+
+        # Create frames/pages
+        self.screenshot_pdf_frame = ScreenshotToPDFFrame(self.container, self)
+        self.customer_summary_frame = CustomerSummaryFrame(self.container, self)
+        self.alert_frame = AlertTemplateFrame(self.container, self)
+        self.transaction_frame = TransactionCSVFrame(self.container, self)
+
+        # Add frames as tabs
+        self.container.add(self.screenshot_pdf_frame, text="1) Screenshots to PDF")
+        self.container.add(self.customer_summary_frame, text="2) Customer Summary")
+        self.container.add(self.alert_frame, text="3) Alert Templates")
+        self.container.add(self.transaction_frame, text="4) Transaction CSV")
+
+        # Keep references to frames in a list (in the same order as the tabs)
+        self.frames = [
+            self.screenshot_pdf_frame,
+            self.customer_summary_frame,
+            self.alert_frame,
+            self.transaction_frame
+        ]
+
+        # Track which tabs are selected for "Run Case"
+        self.selected_tabs = set()
+
+        # Bind a double-click event on the Notebook’s tab area
+        self.container.bind("<Double-1>", self.on_tab_double_click)
+
+        # Add a simple menu with a dark mode toggle
+        menubar = tk.Menu(self, tearoff=False)
+        view_menu = tk.Menu(menubar, tearoff=False)
+        view_menu.add_command(label="Toggle Dark Mode", command=self.toggle_dark_mode)
+        menubar.add_cascade(label="View", menu=view_menu)
+
+        help_menu = tk.Menu(menubar, tearoff=False)
+        help_menu.add_command(label="About Trace", command=self.show_about)
+        menubar.add_cascade(label="Help", menu=help_menu)
+        self.config(menu=menubar)
+
+        # Initialize and configure style
+        self.style = ttk.Style(self)
+        self.style.theme_use("clam")
+
+        # Apply an overall dark mode or light mode
+        self.apply_dark_mode(self.dark_mode_enabled)
+        # Set up tab and button hover styles
+        self.setup_custom_styles()
+
+    ############################
+    #       TAB SELECTION      #
+    ############################
+    def on_tab_double_click(self, event):
+        """Toggle which tabs are selected for 'Run Case' by double-click."""
+        x, y = event.x, event.y
+        tab_index = self.container.index(f"@{x},{y}")
+        if tab_index == -1:
+            return  # Click was not on a valid tab
+
+        if tab_index in self.selected_tabs:
+            # Already selected, so unselect
+            self.selected_tabs.remove(tab_index)
+            self.set_tab_color(tab_index, selected=False)
+        else:
+            # Not selected, so select
+            self.selected_tabs.add(tab_index)
+            self.set_tab_color(tab_index, selected=True)
+
+    def set_tab_color(self, tab_index, selected):
+        """
+        Change the background/foreground of a tab to indicate
+        whether it's selected for "Run Case."
+        """
+        if selected:
+            # Example highlight color for "selected" tabs
+            self.container.tab(tab_index, background="#0044cc", foreground="#ffffff")
+        else:
+            # Revert to default style
+            self.container.tab(tab_index, background="#444444", foreground="#ffffff")
+
+    def run_selected_tabs(self):
+        """Runs the 'run()' method on all frames corresponding to selected tabs."""
+        if not self.selected_tabs:
+            messagebox.showinfo("No Tabs Selected", "Please double-click one or more tabs before using 'Run Case'.")
+            return
+
+        for tab_index in self.selected_tabs:
+            try:
+                frame = self.frames[tab_index]
+                frame.run()
+            except Exception as e:
+                messagebox.showerror("Error Running Tab", f"Error running tab {tab_index}:\n{e}")
+
+    ############################
+    #       DARK MODE ETC.     #
+    ############################
+    def toggle_dark_mode(self):
+        """Toggle dark mode on/off."""
+        self.dark_mode_enabled = not self.dark_mode_enabled
+        self.apply_dark_mode(self.dark_mode_enabled)
+
+    def apply_dark_mode(self, enable_dark):
+        """Apply or remove dark theme colors."""
+        bg_color = "#2b2b2b" if enable_dark else "#f0f0f0"
+        fg_color = "white" if enable_dark else "black"
+
+        self.style.configure(".", background=bg_color, foreground=fg_color)
+        self.style.configure("TLabel", background=bg_color, foreground=fg_color)
+        self.style.configure("TButton", background=bg_color, foreground=fg_color)
+        self.style.configure("TEntry", fieldbackground="white", foreground="black")
+        self.style.configure("TCombobox", fieldbackground="white", foreground="black")
+        self.style.configure("TNotebook", background=bg_color)
+        self.style.configure("TNotebook.Tab", background="#444444", foreground="#ffffff")
+
+        # Force refresh
+        self.configure(bg=bg_color)
+        self.update_idletasks()
+
+    def setup_custom_styles(self):
+        """
+        Adds a hover effect to buttons and ensures better contrast on tabs.
+        """
+        # Make tab font bigger or set foreground explicitly
+        self.style.configure("TNotebook.Tab", padding=[10, 5], font=("Helvetica", 10, "bold"))
+
+        # Hover effect for TButton:
+        self.style.map(
+            "TButton",
+            foreground=[("active", "black")],
+            background=[("active", "#cccccc")],
+            relief=[("pressed", "sunken")]
+        )
+
+    def show_about(self):
+        messagebox.showinfo(
+            "About Trace",
+            "Trace v2.0\n\nAn investigation toolkit to capture website screenshots, "
+            "generate summaries, create alert templates, and process transaction CSVs.\n"
+            "Built with Python (tkinter)."
+        )
+
+#################################
+#        FRAME 1: PDF TOOL      #
+#################################
+class ScreenshotToPDFFrame(ttk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+
+        # Frame Title
+        title_label = ttk.Label(self, text="Convert Website Screenshots to PDF", font=("Helvetica", 14, "bold"))
+        title_label.pack(pady=10, anchor="w")
+
+        # Instructions
+        instructions = (
+            "Enter one or more URLs (one per line). Then click 'Run' to open a headless Chrome browser, "
+            "capture each page as a PDF, and prepend a banner with the source URL."
+        )
+        ttk.Label(self, text=instructions, wraplength=600).pack(pady=(0, 10), anchor="w")
+
+        # URLs text area
+        self.url_text = tk.Text(self, height=8, wrap="word")
+        self.url_text.pack(fill="x", padx=10, pady=5)
+
+        # Independent Run button
+        self.run_button = ttk.Button(self, text="Run", command=self.run)
+        self.run_button.pack(pady=10)
+
+        # Progress bar for feedback
+        self.progress = ttk.Progressbar(self, mode="indeterminate")
+        self.progress.pack(fill="x", padx=20, pady=(0,10))
+        self.progress.pack_forget()
+
+    def run(self):
+        """Called when the user clicks the 'Run' button or from 'Run Case'."""
+        raw_urls = self.url_text.get("1.0", tk.END).strip()
+        urls = [line.strip() for line in raw_urls.splitlines() if line.strip()]
+
+        if not urls:
+            messagebox.showwarning("Missing URLs", "Please enter at least one URL.")
+            return
+
+        # Start the progress bar
+        self.progress.pack(fill="x", padx=20, pady=(0,10))
+        self.progress.start(10)
+
+        output_dir = os.path.expanduser("~/Desktop/Investigation_File")
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Set up headless Chrome (once, rather than repeatedly in the loop)
+        options = Options()
+        options.add_argument("--headless")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--window-size=1920,1080")
+        options.add_argument("--no-sandbox")
+
+        for url in urls:
+            try:
+                driver = webdriver.Chrome(options=options)
+                driver.get(url)
+                time.sleep(2)
+
+                # Insert a banner with the source URL
+                banner = f"""
+                    var banner = document.createElement('div');
+                    banner.textContent = 'Source URL: {url}';
+                    banner.style.padding = '10px';
+                    banner.style.backgroundColor = '#f2f2f2';
+                    banner.style.fontSize = '12px';
+                    banner.style.fontFamily = 'monospace';
+                    banner.style.borderBottom = '1px solid #ccc';
+                    document.body.prepend(banner);
+                """
+                driver.execute_script(banner)
+                time.sleep(1.5)
+
+                pdf_data = driver.execute_cdp_cmd("Page.printToPDF", {
+                    "landscape": False,
+                    "displayHeaderFooter": False,
+                    "printBackground": True,
+                    "preferCSSPageSize": True,
+                    "paperWidth": 8.27,      # A4 width
+                    "paperHeight": 11.69     # A4 height
+                })
+                filename = f"{url.split('//')[-1].split('/')[0]}.pdf"
+                filepath = os.path.join(output_dir, filename)
+
+                with open(filepath, 'wb') as f:
+                    f.write(base64.b64decode(pdf_data['data']))
+
+                driver.quit()
+
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to convert:\n{url}\n\n{e}")
+
+        self.progress.stop()
+        self.progress.pack_forget()
+        messagebox.showinfo("Done", f"PDFs saved to:\n{output_dir}")
+
+
+#################################
+#     FRAME 2: GPT SUMMARY      #
+#################################
+class CustomerSummaryFrame(ttk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+
+        # Title
+        label = ttk.Label(self, text="Generate Customer Summary", font=("Helvetica", 14, "bold"))
+        label.pack(pady=10, anchor="w")
+
+        # Instructions
+        instructions = (
+            "Enter a Customer ID to fetch an investigation-focused summary. "
+            "The summary is then saved as a Word document."
+        )
+        ttk.Label(self, text=instructions, wraplength=600).pack(anchor="w", padx=10, pady=(0, 10))
+
+        # Customer ID entry
+        self.customer_entry = ttk.Entry(self)
+        self.customer_entry.pack(fill="x", padx=10, pady=5)
+        self.customer_entry.focus()
+
+        # Independent Run button
+        self.summary_button = ttk.Button(self, text="Run", command=self.run)
+        self.summary_button.pack(pady=5)
+
+        # Progress bar
+        self.progress = ttk.Progressbar(self, mode="indeterminate")
+        self.progress.pack(fill="x", padx=20, pady=(0,10))
+        self.progress.pack_forget()
+
+    def run(self):
+        """Called when the user clicks the 'Run' button or from 'Run Case'."""
+        customer_id = self.customer_entry.get().strip()
+        if not customer_id:
+            messagebox.showwarning("Missing ID", "Please enter a Customer ID.")
+            return
+
+        prompt = f"Please provide a summary of customer ID {customer_id}. Tailor your response for an analyst on the Investigation Operations team."
+        api_url = "https://chatai.circle.com/api/proxy/open_ai/v1/chat/completions"
+
+        headers = {
+            "Authorization": "Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..UU-SRFp1e4P0onrx.F1i9VAT5xUDDvQKDvK0RZgZexIJpmj08-VV8v3GoWi5MvZSHHmiwBC_3SQftEHbfSeaXXZjTwSpCqzbJkKcGxibxye-VeDFHMmniU6-yNOgcIsbQOZ3yhOPUT5u5O96CSfxICTvNFs4DbjxJa228saTJDsgDTYBX6_6FHnY7Rr5LxVn6ZLsj3ExHbVGeYnhd6HZlEu-KCNjWD2tZ9TygnYjjJn-GT5gLDlbuA4kg9zgKyld9i554tm8.jcAJKm_ocrFyRl95GdnnXg",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "model": "gpt-4o",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.2,
+            "max_tokens": 800
+        }
+
+        # Show progress bar
+        self.progress.pack(fill="x", padx=20, pady=(0,10))
+        self.progress.start(10)
+        self.update_idletasks()
+
+        try:
+            response = requests.post(api_url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            summary = data["choices"][0]["message"]["content"]
+
+            # Save to Word doc
+            doc = Document()
+            doc.add_heading(f"Customer Summary: {customer_id}", level=1)
+            doc.add_paragraph(summary)
+
+            output_folder = os.path.expanduser("~/Desktop/Investigation_File")
+            os.makedirs(output_folder, exist_ok=True)
+            file_path = os.path.join(output_folder, f"{customer_id}_Summary.docx")
+            doc.save(file_path)
+
+            messagebox.showinfo("Success", f"Summary saved to:\n{file_path}")
+
+        except requests.exceptions.HTTPError as e:
+            messagebox.showerror("API Error", f"Failed to fetch summary:\n{e}\n\n{response.status_code} - {response.text}")
+        except Exception as ex:
+            messagebox.showerror("Error", f"An unexpected error occurred:\n{ex}")
+        finally:
+            self.progress.stop()
+            self.progress.pack_forget()
+
+
+#################################
+#     FRAME 3: ALERT DOCS       #
+#################################
+class AlertTemplateFrame(ttk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+
+        # Title
+        ttk.Label(self, text="Generate Alert Template", font=("Helvetica", 14, "bold")).pack(anchor="w", pady=10)
+
+        # Instruction
+        ttk.Label(self, text="Select an alert template, fill in details, and auto-append a ChatAI summary.", wraplength=600)\
+            .pack(anchor="w", padx=10, pady=(0, 10))
+
+        # Load docx templates from folder
+        self.TEMPLATE_FOLDER = "alert_templates"
+        template_files = glob.glob(os.path.join(self.TEMPLATE_FOLDER, "*.docx"))
+        template_names = [os.path.basename(f).replace(".docx", "") for f in template_files]
+        self.template_map = dict(zip(template_names, template_files))
+
+        # Dropdown
+        self.template_var = tk.StringVar()
+        self.template_dropdown = ttk.Combobox(self, textvariable=self.template_var, values=template_names, state="readonly")
+        self.template_dropdown.set("Select Alert Type")
+        self.template_dropdown.pack(fill="x", padx=10, pady=(0, 10))
+
+        # Entry fields
+        self.alert_customer_id = self.labeled_entry("Customer ID")
+        self.alert_customer_name = self.labeled_entry("Customer Name")
+        self.alert_start_date = self.labeled_entry("Start Date (MM/DD/YYYY)")
+        self.alert_end_date = self.labeled_entry("End Date (MM/DD/YYYY)")
+        self.alert_account_purpose = self.labeled_entry("Account Purpose")
+
+        # Generate alert doc button
+        run_button = ttk.Button(self, text="Run", command=self.run)
+        run_button.pack(pady=10)
+
+        # Progress bar
+        self.progress = ttk.Progressbar(self, mode="indeterminate")
+        self.progress.pack(fill="x", padx=20, pady=(0,10))
+        self.progress.pack_forget()
+
+    def labeled_entry(self, label_text):
+        label = ttk.Label(self, text=label_text)
+        label.pack(anchor="w", padx=10)
+        entry = ttk.Entry(self)
+        entry.pack(fill="x", padx=10, pady=(0, 10))
+        return entry
+
+    def run(self):
+        """Called when the user clicks the 'Run' button or from 'Run Case'."""
+        selected_template = self.template_var.get()
+        if selected_template not in self.template_map:
+            messagebox.showwarning("Missing Template", "Please select a valid alert template.")
+            return
+
+        context = {
+            "customer_id": self.alert_customer_id.get().strip(),
+            "customer_name": self.alert_customer_name.get().strip(),
+            "start_date": self.alert_start_date.get().strip(),
+            "end_date": self.alert_end_date.get().strip(),
+            "account_purpose": self.alert_account_purpose.get().strip()
+        }
+
+        if not all(context.values()):
+            messagebox.showwarning("Missing Info", "Please complete all fields.")
+            return
+
+        # 1. Fetch ChatAI summary
+        prompt = f"Please provide a summary of customer ID {context['customer_id']}. Tailor your response for an analyst on the Investigation Operations team."
+        api_url = "https://chatai.circle.com/api/proxy/open_ai/v1/chat/completions"
+        headers = {
+          "Authorization": "Bearer [API KEY HERE]",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": "gpt-4o",
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.2,
+            "max_tokens": 800
+        }
+
+        # Show progress
+        self.progress.pack(fill="x", padx=20, pady=(0,10))
+        self.progress.start(10)
+        self.update_idletasks()
+
+        try:
+            response = requests.post(api_url, headers=headers, json=payload)
+            response.raise_for_status()
+            summary = response.json()["choices"][0]["message"]["content"]
+        except Exception as e:
+            messagebox.showerror("ChatAI Error", f"Could not fetch summary:\n{e}")
+            self.progress.stop()
+            self.progress.pack_forget()
+            return
+
+        # 2. Load and fill the template
+        try:
+            doc = Document(self.template_map[selected_template])
+            for para in doc.paragraphs:
+                para.text = para.text.format(**context)
+
+            # 3. Add ChatAI Summary
+            doc.add_page_break()
+            doc.add_heading("ChatAI Summary", level=1)
+            doc.add_paragraph(summary)
+
+            # 4. Save final doc
+            output_folder = os.path.expanduser("~/Desktop/Investigation_File")
+            os.makedirs(output_folder, exist_ok=True)
+            filename = f"{selected_template}_{context['customer_id']}.docx"
+            filepath = os.path.join(output_folder, filename)
+            doc.save(filepath)
+
+            messagebox.showinfo("Success", f"Alert template with ChatAI summary saved to:\n{filepath}")
+        except Exception as e:
+            messagebox.showerror("Generation Error", f"Failed to generate alert:\n{e}")
+        finally:
+            self.progress.stop()
+            self.progress.pack_forget()
+
+#################################
+#   FRAME 4: TRANSACTION CSV    #
+#################################
+class TransactionCSVFrame(ttk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+
+        # To store selected CSV path
+        self.csv_path = None
+
+        # Title
+        ttk.Label(self, text="Process Transaction CSV", font=("Helvetica", 14, "bold")).pack(anchor="w", pady=10)
+
+        # Instruction
+        instructions = (
+            "1) Click 'Upload CSV' to select your transactions file.\n"
+            "2) Click 'Run' to process the CSV: filter out failed/denied, categorize, and create a summary breakdown."
+        )
+        ttk.Label(self, text=instructions, wraplength=700).pack(anchor="w", padx=10, pady=(0, 10))
+
+        # Buttons
+        upload_button = ttk.Button(self, text="Upload CSV", command=self.choose_csv_file)
+        upload_button.pack(pady=5)
+
+        self.run_button = ttk.Button(self, text="Run", command=self.run)
+        self.run_button.pack(pady=10)
+
+        # Progress bar
+        self.progress = ttk.Progressbar(self, mode="indeterminate")
+        self.progress.pack(fill="x", padx=20, pady=(0,10))
+        self.progress.pack_forget()
+
+    def choose_csv_file(self):
+        file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
+        if file_path:
+            self.csv_path = file_path
+            messagebox.showinfo("CSV Selected", f"Selected CSV:\n{file_path}")
+
+    def run(self):
+        """Called when the user clicks 'Run' or from 'Run Case' to process the CSV."""
+        if not self.csv_path:
+            messagebox.showwarning("No CSV Selected", "Please upload a CSV file before running.")
+            return
+        self.process_transaction_csv(self.csv_path)
+
+    def process_transaction_csv(self, file_path):
+        # Show progress
+        self.progress.pack(fill="x", padx=20, pady=(0,10))
+        self.progress.start(10)
+        self.update_idletasks()
+
+        try:
+            df = pd.read_csv(file_path)
+            df.columns = df.columns.str.strip().str.lower()
+
+            # Ensure correct types and fill values
+            if 'create_date' in df.columns:
+                df['create_date'] = pd.to_datetime(df['create_date'], errors='coerce')
+
+            for col in ["activity_state", "activity", "funding_type", "destination_type",
+                        "from_address", "destination", "blockchain", "to_currency"]:
+                if col in df.columns:
+                    df[col] = df[col].astype(str).str.lower().fillna('')
+
+            numeric_cols = ["usd_value_updated", "original_currency_amount_updated"]
+            for col in numeric_cols:
+                if col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+
+            # Filter out failed/denied
+            if 'activity_state' in df.columns:
+                valid_rows = df[~df['activity_state'].isin(['failed', 'denied'])].copy()
+            else:
+                valid_rows = df.copy()
+
+            # Define categories
+            categories = {
+                'onchainReceive': lambda r: r.get('activity','') == 'receive' and r.get('funding_type','') == 'blockchain',
+                'onchainSpend':   lambda r: r.get('activity','') == 'spend',
+                'incomingWire':   lambda r: r.get('activity','') == 'receive' and r.get('funding_type','') == 'fiat_account',
+                'outgoingWire':   lambda r: r.get('activity','') == 'eft_transfer'
+            }
+
+            valid_rows['category'] = 'other'
+            for cat, func in categories.items():
+                mask = valid_rows.apply(func, axis=1)
+                valid_rows.loc[mask, 'category'] = cat
+
+            # Add month-year and amount columns
+            if 'create_date' in valid_rows.columns:
+                valid_rows['month_year'] = valid_rows['create_date'].dt.to_period("M").astype(str)
+
+            if 'usd_value_updated' in valid_rows.columns:
+                valid_rows['amount'] = valid_rows['usd_value_updated']
+            else:
+                valid_rows['amount'] = 0
+
+            if 'original_currency_amount_updated' in valid_rows.columns:
+                zero_mask = valid_rows['amount'] == 0
+                valid_rows.loc[zero_mask, 'amount'] = valid_rows['original_currency_amount_updated']
+
+            # Generate summary
+            def format_currency(val):
+                return "${:,.2f}".format(val) if pd.notnull(val) else "$0.00"
+
+            summary_lines = []
+            for cat in categories.keys():
+                cat_rows = valid_rows[valid_rows['category'] == cat]
+                if not cat_rows.empty:
+                    total = cat_rows['amount'].sum()
+                    count = len(cat_rows)
+                    min_amt = cat_rows['amount'].min()
+                    max_amt = cat_rows['amount'].max()
+                    dates = cat_rows['create_date'].dropna() if 'create_date' in cat_rows.columns else []
+                    if len(dates) > 0:
+                        line = (f"{count} {cat} transactions totaling {format_currency(total)}, "
+                                f"from {dates.min().date()} to {dates.max().date()}.")
+                    else:
+                        line = f"{count} {cat} transactions totaling {format_currency(total)}."
+                    summary_lines.append(line)
+
+            # Additional breakdown by 'activity'
+            if 'activity' in valid_rows.columns:
+                for act in valid_rows['activity'].unique():
+                    act_rows = valid_rows[valid_rows['activity'] == act]
+                    if not act_rows.empty:
+                        total = act_rows['amount'].sum()
+                        count = len(act_rows)
+                        line = f"{count} '{act}' transactions totaling {format_currency(total)}."
+                        summary_lines.append(line)
+
+            # Destination stats
+            if 'destination_type' in valid_rows.columns:
+                dest_blockchain = valid_rows[valid_rows['destination_type'] == 'blockchain']
+                if not dest_blockchain.empty and 'destination' in dest_blockchain.columns:
+                    dest_stats = dest_blockchain.groupby('destination', dropna=False).agg(
+                        Count=('destination', 'size'),
+                        Total_USD=('amount', 'sum')
+                    ).sort_values(by='Total_USD', ascending=False).head(50)
+                else:
+                    dest_stats = pd.DataFrame()
+            else:
+                dest_stats = pd.DataFrame()
+
+            # From address stats
+            if 'from_address' in valid_rows.columns:
+                from_stats = valid_rows[valid_rows['from_address'].str.lower() != 'null']
+                if not from_stats.empty:
+                    from_stats = from_stats.groupby('from_address', dropna=False).agg(
+                        Count=('from_address', 'size'),
+                        Total_USD=('amount', 'sum')
+                    ).sort_values(by='Total_USD', ascending=False).head(50)
+                else:
+                    from_stats = pd.DataFrame()
+            else:
+                from_stats = pd.DataFrame()
+
+            # Month-Year breakdown
+            if 'month_year' in valid_rows.columns and 'category' in valid_rows.columns:
+                month_cat = valid_rows.groupby(['month_year', 'category']).agg(
+                    Count=('amount', 'size'),
+                    Total_USD=('amount', 'sum'),
+                    Min_USD=('amount', 'min'),
+                    Max_USD=('amount', 'max')
+                ).reset_index()
+            else:
+                month_cat = pd.DataFrame()
+
+            # Blockchain by category
+            if 'blockchain' in valid_rows.columns and 'category' in valid_rows.columns:
+                chain_cat = valid_rows.groupby(['blockchain', 'category']).agg(
+                    Count=('amount', 'size'),
+                    Total_USD=('amount', 'sum')
+                ).reset_index()
+            else:
+                chain_cat = pd.DataFrame()
+
+            # Save results
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_folder = os.path.expanduser("~/Desktop/Investigation_File")
+            os.makedirs(output_folder, exist_ok=True)
+            output_file = os.path.join(output_folder, f"Transactions_Summary_{timestamp}.xlsx")
+
+            # Strip timezone info from all datetime columns to avoid Excel writer issues
+            for col in df.columns:
+                if pd.api.types.is_datetime64_any_dtype(df[col]):
+                    df[col] = pd.to_datetime(df[col], errors="coerce").dt.tz_localize(None)
+
+            with pd.ExcelWriter(output_file, engine='xlsxwriter') as writer:
+                pd.DataFrame({"Summary": summary_lines}).to_excel(writer, sheet_name='Summary', index=False)
+                if not dest_stats.empty:
+                    dest_stats.to_excel(writer, sheet_name='Destination Blockchain', index=True)
+                if not from_stats.empty:
+                    from_stats.to_excel(writer, sheet_name='From Address', index=True)
+                if not month_cat.empty:
+                    month_cat.to_excel(writer, sheet_name='Month-Year Breakdown', index=False)
+                if not chain_cat.empty:
+                    chain_cat.to_excel(writer, sheet_name='Blockchain by Type', index=False)
+                df.to_excel(writer, sheet_name='Raw Transactions', index=False)
+
+            messagebox.showinfo("Success", f"Summary saved to:\n{output_file}")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to process transactions:\n{e}")
+        finally:
+            self.progress.stop()
+            self.progress.pack_forget()
+
+
+#################################
+#           MAIN LOOP           #
+#################################
+if __name__ == "__main__":
+    app = TraceApp()
+    app.mainloop()
