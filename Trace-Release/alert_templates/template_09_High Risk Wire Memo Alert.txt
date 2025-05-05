@@ -1,7 +1,0 @@
-Customer {customer_id}, {customer_name}, was alerted on [MM/DD/YYYY] for wire-high risk word alert. Their eft transfer for [$ amount] was alerted for including the word [insert high risk word] 
-
-[[The high risk word was included as part of the full string [insert full string]. This memo appears to be standardized, and the high risk word included is coincidental, rather than intentional.]]
-
-[The high risk word is in the customer business name. It is common for businesses to include their company name to identify wires in the memo field.] 
-
-As this only alerted due to [reason] this is a true false positive and no further review will be conducted. Clearing alert.

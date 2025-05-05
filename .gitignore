@@ -23,7 +23,6 @@ wheels/
 # Virtual Environment
 venv/
 ENV/
-env/
 
 # IDE
 .idea/
@@ -31,13 +30,30 @@ env/
 *.swp
 *.swo
 
-# OS
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Project specific
+certs/
+*.pkg
+Trace_Package/
+Trace-Release/
+*.zip
+__pycache__/
+*.pyc
+
+# OS
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db
 Thumbs.db
 
 # Application specific
