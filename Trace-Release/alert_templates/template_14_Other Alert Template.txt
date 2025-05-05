@@ -1,0 +1,10 @@
+Customer {customer_id}, {customer_name}, was alerted on [MM/DD/YYYY] due to a banking partner request for information (RFI)/incoming 314b request being received for the customer. The review period is from {start_date} to {end_date}.
+
+The customer's nature of business is [Nature of Account]. The purpose of the account is to {account_purpose}.
+
+A review of the alerted activity found that it is [describe the alerted transactions and highlight anything of note]. Additionally, during the review period, the customer had onchain exposure [TO/FROM] [ONCHAIN ENTITY TYPES]. [Explain high risk onchain entity exposure here if found.] The customer’s overall pattern of activity included [describe pattern of activity and highlight its consistency or lack thereof with the customers nature of business or purpose of the account].
+
+External research found [No Derogatory Information]. [Explain here if found]
+
+Based on the review outlined above, [no unusual activity-EXPLAIN IF UNUSUAL] was identified and the customer’s transactional activity [is/is not] in line with its profile. [CLEARING ALERT/ESCALATING ALERT].
+

@@ -1,0 +1,13 @@
+ADD ONLY WHEN ALERT IS ON AN END USER: This alert pertains to an end user of [API Customer Name] (Customer ID: XXX), associated with [subaccount # / deposit address XXX / withdrawal address XXX]
+
+The potential structuring behavior observed includes [describe the alerted activity, such as # onchain deposits, each below $, but combined exceeding $, during the alerted period {start_date} to {end_date}.
+
+IF RELEVANT (If able to mitigate based on High Level Review): Review of the customer’s transactions from {start_date} to {end_date} found that they have a history of transacting in amounts that exceed the [$3,000.00 USD, $10,000.00 USD, $1,500.00 SGD, $20,000.00 SGD] structuring threshold. This indicates that the customer has not purposely stayed below this threshold to avoid detection. 
+
+IF RELEVANT (If 30 day review is needed): Review of the customer's activity between [MM/DD/YYYY] to [MM/DD/YYYY] identified [briefly describe relevant patterns of activity, direct exposure onchain]
+
+The customer's reviewed transactions do not appear unusual because [list mitigating factors] OR appear unusual because [list aggravating factors].
+
+Based on the review outlined above, the customer [does / does not] appear to be structuring their transactions. As a result, this alert is being [cleared / escalated].
+
+IF RELEVANT (Escalating an end user alert): A KYC request has been sent to obtain KYC/PII on this end user.

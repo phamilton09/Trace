@@ -1,0 +1,13 @@
+Customer [CUSTOMER NAME] (CUSTOMER_ID) alerted on [MM/DD/YYYY] due to sending or receiving funds to/from multiple fiat accounts in a short period of time (H&S Fiat Entity). The review period of this alert is from [MM/DD/YYYY] to [MM/DD/YYYY].
+
+[CUSTOMER NAME]’s stated nature of business is [Nature of Account] and their stated purpose of their account is to [Account Purpose].
+
+The customer alerted because they [SENT/RECEIVED] funds [TO/FROM] [#] fiat account under the following billing names: [LIST ALL BILLING NAMES ASSOCIATED WITH FIAT ACCOUNTS]. [Highlight any location discrepancies between the customer location and the billing country or bank country]
+
+During the review period, [CUSTOMER] [SENT/RECEIVED] [TOTAL $] [TO/FROM] the noted fiat accounts and had onchain exposure [TO/FROM] [ONCHAIN ENTITY TYPES] (this statement should focus on either the source or destination of funds involving the funds that came from or went to the fiat accounts in question) [Explain high risk onchain entity exposure here if found.]
+
+[INSERT REASON THAT EXPLAINS USE OF THE MULTIPLE FIAT ACCOUNTS OR THAT A REASON COULD NOT BE FOUND. NOTE ANY USE OF STABLECOIN EXPRESS THAT MAY HAVE CAUSED THE ALERT] (Use of multiple fiat accounts could be reasonable based on how the customer organizes their funds and the jurisdictions they operate in, but may also be an indicator of fraud or improper account use)
+
+External research found [No Derogatory Information]. [Explain here if found]
+
+Based on the review outlined above, [no unusual activity-EXPLAIN IF UNUSUAL] was identified and the customer’s transactional activity is in line with its profile. [CLEARING ALERT/ESCALATING ALERT].

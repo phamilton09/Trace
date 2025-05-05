@@ -1,0 +1,221 @@
+import requests
+import os
+import subprocess
+import sys
+import tkinter as tk
+from tkinter import ttk, messagebox
+import threading
+
+class UpdateManager:
+    def __init__(self, repo_owner, repo_name, current_version):
+        self.repo_owner = repo_owner
+        self.repo_name = repo_name
+        self.current_version = current_version
+        self.api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
+    
+    def check_for_updates(self):
+        """Check for available updates."""
+        try:
+            response = requests.get(self.api_url)
+            response.raise_for_status()
+            latest = response.json()
+            
+            # Compare versions
+            latest_version = latest['tag_name'].lstrip('v')
+            if self._compare_versions(latest_version, self.current_version) > 0:
+                return {
+                    'available': True,
+                    'version': latest_version,
+                    'release_notes': latest['body'],
+                    'assets': latest['assets']
+                }
+            return {'available': False}
+        except Exception as e:
+            print(f"Error checking for updates: {e}")
+            return {'available': False}
+    
+    def download_update(self, url):
+        """Download the update package."""
+        try:
+            response = requests.get(url, stream=True)
+            response.raise_for_status()
+            
+            # Save to temporary file
+            temp_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "update.pkg")
+            with open(temp_file, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+            return temp_file
+        except Exception as e:
+            raise Exception(f"Failed to download update: {e}")
+    
+    def install_update(self, update_file):
+        """Install the update package."""
+        try:
+            # Create .updating flag file
+            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".updating"), "w") as f:
+                f.write("")
+            
+            # Install the package
+            subprocess.run(["installer", "-pkg", update_file, "-target", "/"], check=True)
+            
+            # Download and install new requirements if they exist
+            try:
+                response = requests.get(f"https://raw.githubusercontent.com/{self.repo_owner}/{self.repo_name}/main/requirements.txt")
+                response.raise_for_status()
+                with open("requirements.txt", "w") as f:
+                    f.write(response.text)
+            except Exception as e:
+                print(f"Warning: Could not download new requirements: {e}")
+            
+            # Clean up
+            os.remove(update_file)
+            return True
+        except Exception as e:
+            print(f"Error installing update: {e}")
+            return False
+    
+    def restart_application(self):
+        """Restart the application after update."""
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
+    
+    def _compare_versions(self, version1, version2):
+        """Compare two version strings."""
+        v1_parts = [int(x) for x in version1.split('.')]
+        v2_parts = [int(x) for x in version2.split('.')]
+        
+        for i in range(max(len(v1_parts), len(v2_parts))):
+            v1 = v1_parts[i] if i < len(v1_parts) else 0
+            v2 = v2_parts[i] if i < len(v2_parts) else 0
+            
+            if v1 > v2:
+                return 1
+            elif v1 < v2:
+                return -1
+        return 0 
+
+class TraceApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Trace - Investigation Toolkit")
+        self.update_manager = UpdateManager("phamilton09", "Trace", "1.0.0")
+        
+        # Check for updates on startup
+        self.root.after(1000, self.check_for_updates)  # Delay to ensure window is shown
+        
+    def check_for_updates(self):
+        """Check for available updates."""
+        try:
+            update_info = self.update_manager.check_for_updates()
+            if update_info['available']:
+                # Create a custom dialog with "Update Now" and "Later" buttons
+                dialog = tk.Toplevel(self.root)
+                dialog.title("Update Available")
+                dialog.geometry("400x300")
+                dialog.transient(self.root)
+                dialog.grab_set()
+                
+                # Center the dialog
+                dialog.update_idletasks()
+                width = dialog.winfo_width()
+                height = dialog.winfo_height()
+                x = (dialog.winfo_screenwidth() // 2) - (width // 2)
+                y = (dialog.winfo_screenheight() // 2) - (height // 2)
+                dialog.geometry(f'{width}x{height}+{x}+{y}')
+                
+                # Add content
+                frame = ttk.Frame(dialog, padding="20")
+                frame.pack(fill=tk.BOTH, expand=True)
+                
+                ttk.Label(frame, text=f"Version {update_info['version']} is available!", 
+                         font=('Helvetica', 12, 'bold')).pack(pady=(0, 10))
+                
+                # Add release notes in a scrollable text widget
+                notes_frame = ttk.Frame(frame)
+                notes_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+                
+                ttk.Label(notes_frame, text="Release Notes:").pack(anchor='w')
+                text = tk.Text(notes_frame, wrap=tk.WORD, height=8)
+                text.pack(fill=tk.BOTH, expand=True)
+                text.insert('1.0', update_info['release_notes'])
+                text.config(state='disabled')
+                
+                # Add scrollbar
+                scrollbar = ttk.Scrollbar(notes_frame, orient="vertical", command=text.yview)
+                scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+                text.configure(yscrollcommand=scrollbar.set)
+                
+                # Add buttons
+                button_frame = ttk.Frame(frame)
+                button_frame.pack(fill=tk.X, pady=(10, 0))
+                
+                def update_now():
+                    dialog.destroy()
+                    self.install_update(update_info)
+                
+                def update_later():
+                    dialog.destroy()
+                    # Schedule the update check to run again in 1 hour
+                    self.root.after(3600000, self.check_for_updates)
+                
+                ttk.Button(button_frame, text="Update Now", command=update_now).pack(side=tk.LEFT, padx=5)
+                ttk.Button(button_frame, text="Later", command=update_later).pack(side=tk.RIGHT, padx=5)
+                
+                # Make dialog modal
+                dialog.wait_window()
+                
+        except Exception as e:
+            print(f"Error checking for updates: {e}")
+            
+    def install_update(self, update_info):
+        """Install the update."""
+        try:
+            # Show progress dialog
+            progress = tk.Toplevel(self.root)
+            progress.title("Updating")
+            progress.geometry("300x150")
+            progress.transient(self.root)
+            progress.grab_set()
+            
+            # Center the progress dialog
+            progress.update_idletasks()
+            width = progress.winfo_width()
+            height = progress.winfo_height()
+            x = (progress.winfo_screenwidth() // 2) - (width // 2)
+            y = (progress.winfo_screenheight() // 2) - (height // 2)
+            progress.geometry(f'{width}x{height}+{x}+{y}')
+            
+            frame = ttk.Frame(progress, padding="20")
+            frame.pack(fill=tk.BOTH, expand=True)
+            
+            ttk.Label(frame, text="Downloading update...").pack(pady=(0, 10))
+            progress_bar = ttk.Progressbar(frame, mode='indeterminate')
+            progress_bar.pack(fill=tk.X, pady=10)
+            progress_bar.start()
+            
+            # Download and install update in a separate thread
+            def update_thread():
+                try:
+                    # Download the update
+                    update_file = self.update_manager.download_update(update_info['assets'][0]['browser_download_url'])
+                    
+                    # Install the update
+                    if self.update_manager.install_update(update_file):
+                        progress.destroy()
+                        messagebox.showinfo("Update Complete", 
+                            "The update has been installed. The application will now restart.")
+                        self.update_manager.restart_application()
+                    else:
+                        progress.destroy()
+                        messagebox.showerror("Update Failed", 
+                            "Failed to install the update. Please try again later.")
+                except Exception as e:
+                    progress.destroy()
+                    messagebox.showerror("Update Error", str(e))
+            
+            threading.Thread(target=update_thread, daemon=True).start()
+            
+        except Exception as e:
+            messagebox.showerror("Update Error", str(e)) 

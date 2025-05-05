@@ -1,0 +1,5 @@
+This CAR alert generated as a 90-day follow-up review from a prior review (Case #XXX, BSA ID XXXXXXX), which was filed on MM/DD/YYYY. That case addressed Circle Mint customer {customer_name} ({customer_id}) / XXXX, end user of Circle Mint customer {customer_name} ({customer_id}) and had a review period of MM/DD/YYYY to MM/DD/YYYY.
+
+This current alert’s review period is from {start_date}to {end_date} (day prior to CAR review). This review identified no new transactions within the review period. As such, there does not appear to be any continued suspicious activity.
+
+As {customer_name} had no new transactions, updated research was not performed. Due to the lack of activity in the review period, this alert is being cleared.

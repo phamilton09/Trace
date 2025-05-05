@@ -1,0 +1,191 @@
+Note: See the Appendix at the end of the template for legacy Circle entities and current/legacy products
+
+
+
+SAR KEYWORDS: CVC FIN-2019-A003 [Additional keywords based on FinCEN memos/advisories]
+
+Filing entity: Circle Internet Financial, LLC. / Circle Internet Singapore Pte. Ltd. /  Circle Internet Financial Europe SAS
+Filing type: Initial / Continuing SAR
+Products used: [ADD PRODUCT DESCRIPTION HERE - ex: Circle Mint account. Customers can utilize a Circle Mint account to purchase and sell USDC, a cryptocurrency stablecoin whose price is pegged to the US dollar, as well as transfer the tokens to external wallet addresses]
+Prior SAR, if a Continuing SAR: Case # (BSA ID: XXX), which was filed on MM/DD/YYYY. That SAR reported $[aggregate value of reported transactions] in suspicious activity that occurred from MM/DD/YYYY to MM/DD/YYYY by [subject name] for [type of suspicious activity].
+Case review period: {start_date} to {end_date}
+Suspicious Activity Total: $XXX
+Suspicious Activity Date Range: MM/DD/YYYY to MM/DD/YYYY
+Subjects: [Add Subject names here]
+Predicates: [Add predicates being reported here]
+
+
+Body
+The body should clearly lay out the who, what, where, when, why and how of the activity, as relevant to the case. The information included should not duplicate what is already included in the SAR form.
+Describe the Subjects, including:
+Name & DBA
+Relationship to Circle and account number(s) - Account number only needed if multiple customers are being reported since the account number is in the SAR form
+Escalation reason, if relevant
+Additional KYC information known, such as business model or stated purpose of their account, if relevant
+Example language:
+
+The Subject is Circle Mint customer ABC Media LLC (ABC). According to internal information, ABC “provides consulting services to social media influencers” and intended to use their account to make payroll payments to employees located outside of the US.
+
+Depending on the specifics of what is being reported, describe the suspicious activity, which may include:
+Date range
+Value of transactions
+Direction of transactions
+Counterparties (including pertinent identification information), if present
+Fiat linked to accounts (if relevant)
+Specific transaction types should only be addressed when relevant to the investigation and what is being reported.
+
+Example language:
+
+Customer is being reported for business legitimacy concerns. Assuming that the red flags regarding business legitimacy are addressed in the narrative, no further detail is needed when addressing the activity: 
+
+Between 01/08/2023 and 08/10/2024, ABC had a total of 333 transactions, totaling $12,789,235.00. 
+
+Customer is being reported for sending funds to a darknet market: 
+
+Between 01/08/2023 and 08/10/2024, ABC completed 29 spends, totaling $303,765.12, to three different addresses attributed to Agora Market, a darknet market. 
+
+
+Describe why the activity is suspicious, including (if relevant):
+Patterns/volumes/exposure of transactions
+Address label information
+Any other information that leads to the suspicion (e.g., negative news, linked account reviews)
+
+When possible, the Investigator should add individual red flags as bullet points instead of needing to create a cohesive paragraph
+
+Paragraph example:
+The transactions outlined above are not in line with ABC’s expected activity. After a period of dormancy, the pattern of transactions changed completely and now involves funds both coming from and going to gambling platforms. Further, internet research on ABC found that they are currently in a dissolved status, do not have an active website, and all social media pages have been deactivated. Based on this information, it appears that ABCs Circle Mint activity is unrelated to their business operations. Additionally, their four month deposit volume of $3,458,831.15 ($2,100,546.12 of which is coming from Stake) is egregiously high for a dissolved business - it appears that ABC may be moving funds on behalf of another entity, involved in facilitating gambling activity itself, or used the gambling activity as a way to obfuscate the movement of funds onchain. For this reason, all onchain and fiat transactions conducted by ABC between 01/18/2024 and 06/29/2024 are being reported as suspicious.
+
+Bullet Point Example:
+Transactions are not in line with expected activity
+Gambling exposure has been identified post-account dormancy
+ABC is currently in a dissolved status, do not have an active website, and all social media pages have been deactivated
+Their four month deposit volume of $3,458,831.15 ($2,100,546.12 of which is coming from Stake) is egregiously high
+
+Include necessary definitions/verbiage based on different types of entities the customer had exposure to onchain. See the Recommended Verbiage tab of the IO Review Resources
+
+Include in every SAR narrative that involves cryptocurrency being graphed in TRM:
+onchain activity for this investigation was reviewed and graphed using TRM, a blockchain forensics tool. The TRM graphs for this SAR are available upon request. 
+
+If using attribution data from the Transaction Sheet (Pi): Some, if not all of the onchain attribution data was obtained at the time of the specific transaction.
+
+If using attribution data from an Elliptic data export: onchain exposure for this investigation was reviewed using a data export from Elliptic, a blockchain forensics tool, which is available upon request.
+
+For additional information, reach out to suspicious-activity@circle.com via email quoting reference Case # [insert Unit21 case number].
+
+Note: All dates/times included in this report are in UTC.
+
+
+
+
+
+
+
+
+
+
+
+
+Appendix 
+
+Legacy Circle Entities:
+
+Circle Payments, LLC
+Poloniex LLC
+Circle UK Trading Limited
+Circle International Bermuda Ltd - Not technically legacy but has no active customers or products
+
+Current Products:
+Circle Mint account. Customers can utilize Circle to purchase and sell USDC, a cryptocurrency stablecoin whose price is pegged to the US dollar, as well as transfer the tokens to external wallet addresses.
+
+Circle Mint account. Customers can utilize Circle to purchase and sell EURC, a cryptocurrency stablecoin whose price is pegged to the Euro, as well as transfer the tokens to external wallet addresses.
+
+Circle’s Crypto Payments API allows customers to accept payments from external blockchain addresses, usually held by those customers' end users. The funds are then settled into the customer’s account as USDC, a cryptocurrency stablecoin whose price is pegged to the US dollar. 
+
+Circle’s Crypto Payouts API allows customers to send USDC and a few other digital assets to external blockchain addresses, most frequently for end user withdrawals from the customers platform.
+
+Legacy Products:
+
+Circle Pay is a peer-to-peer payments application that customers can use to send and receive funds instantly, followed by deposits and withdrawals to and from their linked bank accounts or debit cards. Circle Pay was discontinued in July 2019.
+ 
+Circle Invest is a trading platform where customers can purchase and sell cryptocurrencies, followed by deposits and withdrawals to and from their linked bank accounts or debit cards. Circle Invest was discontinued in December 2023.
+
+Poloniex is a cryptocurrency exchange that allows customers to buy and sell various cryptocurrencies. Trades can be funded by cryptocurrency only. Poloniex was spun out from Circle in November 2019.
+
+Circle’s Wire Payments API allows customers to accept wire payments from third party bank accounts, usually held by their customers. The funds are then settled into the customer’s account as USDC, a cryptocurrency stablecoin whose price is pegged to the US dollar. The Wire Payments API was discontinued in March 2023.
+
+Circle’s ACH Payments API allows customers to accept ACH payments from third party bank accounts, usually held by their customers. The funds are then settled into the customer’s account as USDC, a cryptocurrency stablecoin whose price is pegged to the US dollar. The ACH Payments API was discontinued in March 2023.
+
+Circle’s Card Payments API allows customers to accept card payments from third parties, usually their customers. The funds are then settled into the customer’s account as USDC, a cryptocurrency stablecoin whose price is pegged to the US dollar. The Card Payments API was discontinued in 2024.	
+
+Circle’s Wire Payouts API allows customers to withdraw funds as outgoing wire transfers to third party bank accounts, usually held by their customers. The Wire Payouts API was discontinued in March 2023.
+
+Circle’s Accounts API allows customers to generate subaccounts and initiate internal (off-chain) transfers between subaccounts and the customers master wallet.
+
+Circle Yield is a product that allowed customers to earn yield on USDC, a cryptocurrency stablecoin whose price is pegged to the US dollar, held in their Yield account. Circle Yield was discontinued in January 2023.
+
+
+
+Legacy SAR Narrative:
+
+SAR KEYWORDS: CVC FIN-2019-A003 [Additional keywords based on FinCEN memos/advisories]
+
+Single Entity Filing:
+
+Circle Internet Financial, LLC. / Circle Internet Singapore Pte. Ltd. /  Circle Internet Financial Europe SAS (Circle) is filing this initial / continuing SAR to report suspicious transactions that occurred on the Circle Mint / USDC / EURC / etc. product(s). Include the following two sentences only if a continuing activity SAR This SAR is being filed in regards to continued suspicious activity after being previously reported on Case # (BSA ID: XXX), which was filed on MM/DD/YYYY. That SAR reported $[aggregate value of reported transactions] in suspicious activity that occurred from MM/DD/YYYY to MM/DD/YYYY by [subject name] for [type of suspicious activity].  A review of the customer/end user’s accounts from MM/DD/YYYY to MM/DD/YYYY was conducted. This SAR is reporting $[aggregate value of reported transactions] in suspicious activity that occurred from MM/DD/YYYY to MM/DD/YYYY by [subject name] for [type of suspicious activity]. Include the following sentence only if this is for a continuing activity SAR Cumulatively, this SAR is reporting $[cumulative value of reported transactions between subsequent SARs] in suspicious activity that occurred from MM/DD/YYYY to MM/DD/YYYY [date range of the cumulatively filed SARs].
+
+Joint Filing:
+
+Circle Internet Financial, LLC. and Poloniex LLC (together, Circle) are jointly filing this initial / continuing SAR to report suspicious transactions that occurred on the Circle Mint / USDC / EURC / etc. product(s). Include the following two sentences only if a continuing activity SAR This SAR is being filed in regards to continued suspicious activity after being previously reported on Case # (BSA ID: XXX), which was filed on MM/DD/YYYY. That SAR reported $[aggregate value of reported transactions] in suspicious activity that occurred from MM/DD/YYYY to MM/DD/YYYY by [subject name] for [type of suspicious activity].  A review of the customer/end user’s accounts from MM/DD/YYYY to MM/DD/YYYY was conducted. This SAR is reporting $[aggregate value of reported transactions] in suspicious activity that occurred from MM/DD/YYYY to MM/DD/YYYY by [subject name] for [type of suspicious activity]. Include the following sentence only if this is for a continuing activity SAR Cumulatively, this SAR is reporting $[cumulative value of reported transactions between subsequent SARs] in suspicious activity that occurred from MM/DD/YYYY to MM/DD/YYYY [date range of the cumulatively filed SARs].
+
+Select the appropriate product description based on the products through which the activity occurred
+
+Current Products:
+USDC is a cryptocurrency stablecoin whose price is pegged to the US dollar. Customers can utilize Circle to purchase and sell USDC, as well as transfer the tokens to external wallet addresses.
+
+EURC is a cryptocurrency stablecoin whose price is pegged to the Euro. Customers can utilize Circle to purchase and sell EURC, as well as transfer the tokens to external wallet addresses.
+
+Circle’s Crypto Payments API allows customers to accept payments from external blockchain addresses, usually held by those customers' end users. The funds are then settled into the customer’s account as USDC, a cryptocurrency stablecoin whose price is pegged to the US dollar. 
+
+Circle’s Crypto Payouts API allows customers to send USDC and a few other digital assets to external blockchain addresses, most frequently for end user withdrawals from the customers platform.
+
+Body
+The body should clearly lay out the who, what, where, when, why and how of the activity.
+Describe the Subjects, including:
+Name
+Relationship to Circle and account number(s)
+Escalation reason
+Additional KYC information known, such as business model or stated purpose of their account
+Circle Mint customer ABC Media LLC (ABC), account number 123456789, was escalated for conducting transactions that are out of pattern for the customer and for having no verifiable web presence. ABCs account was opened on 1/27/2019. According to information obtained at onboarding, ABC “provides consulting services to social media influencers” and intended to use their account to make payroll payments to employees located outside of the US.
+
+Describe the suspicious activity, including:
+Date range
+Value of transactions
+Direction of transactions
+Counterparties (including pertinent identification information), if present
+Fiat linked to accounts (if relevant)
+Example language:
+
+Between 03/20/2021 and 09/23/2023, ABC used their account as intended - to deposit funds from a linked bank account in their name (Bank of America ****1234) and then withdraw funds to external ETH addresses that are internally labeled with different ABC employee names. After a period of dormancy (09/24/2023 to 01/17/2024), ABC’s pattern of activity in their account changed. Between 01/18/2024 and 06/29/2024, ABC had the following transactions:
+
+18 onchain deposits of USDC, totaling $3,458,831.15, that originated directly from cryptocurrency exchanges, such as Binance and Coinbase, and indirectly from internet gaming platform Stake. Funds from Stake ($2,100,546.12) originated as USDT before being swapped for USDC at Uniswap, a decentralized exchange, and then sent to ABC. 
+
+12 onchain withdrawals of USDC, totaling $2,002,811.00, that were sent directly to Synapse Bridge, a crypto bridge. The funds could not be traced any further.
+
+10 outgoing wires, totaling $571,222.19, that were sent to a third party bank account, JP Morgan Chase ****9876, under the name xBet76. Internet research found that xBet76 is an online casino that allows customers to withdraw their balances as cryptocurrency. 
+
+Describe why the activity is suspicious, including (if relevant):
+Patterns/volumes/exposure of transactions
+Address label information
+Any other information that leads to the suspicion (e.g., negative news, linked account reviews)
+The transactions outlined above are not in line with ABC’s expected activity. After a period of dormancy, the pattern of transactions changed completely and now involves funds both coming from and going to gambling platforms. Further, internet research on ABC found that they are currently in a dissolved status, do not have an active website, and all social media pages have been deactivated. Based on this information, it appears that ABCs Circle Mint activity is unrelated to their business operations. Additionally, their four month deposit volume of $3,458,831.15 ($2,100,546.12 of which is coming from Stake) is egregiously high for a dissolved business - it appears that ABC may be moving funds on behalf of another entity, involved in facilitating gambling activity itself, or used the gambling activity as a way to obfuscate the movement of funds onchain. For this reason, all onchain and fiat transactions conducted by ABC between 01/18/2024 and 06/29/2024 are being reported as suspicious.
+
+Include necessary definitions/verbiage based on different types of entities the customer had exposure to onchain. See the Recommended Verbiage tab of the IO Review Resources
+
+Include in every SAR narrative that involves cryptocurrency being traced:
+onchain activity for this investigation was reviewed and graphed using TRM, a blockchain forensics tool. The TRM graphs for this SAR are available upon request.
+
+Conclusion:
+Restate the facts and choose the appropriate future action.
+In summary, this SAR is being filed to report [provide another brief description of the suspicious activity] in the amount of $[aggregate value of reported transactions] that occurred from MM/DD/YYYY to MM/DD/YYYY by [Subject]. Include the following sentence only if a continuing activity SAR Cumulatively, this SAR is reporting $[cumulative value of reported transactions between subsequent SARs] in suspicious activity that occurred from MM/DD/YYYY to MM/DD/YYYY [date range of the cumulatively filed SARs]. Select appropriate sentence based on account status. All subject accounts have been closed / Circle will continue to monitor the accounts. For additional information, reach out to suspicious-activity@circle.com via email quoting reference Case # [insert Unit21 case number].
+
+Note: All dates/times included in this report are in UTC.

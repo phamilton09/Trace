@@ -1,0 +1,26 @@
+Customer:
+Customer {customer_id}, {customer_name}, alerted on [MM/DD/YYYY] for high ownership risk onchain.The review period is from {start_date} to {end_date}.
+
+End User:
+An end user of [Circle API Customer Name],{customer_id}, alerted on [MM/DD/YYYY] for high ownership risk onchain. The review period is from {start_date} to {end_date}.
+
+Customer:
+The customer's nature of business is [Nature of Account]. The purpose of the account is to {account_purpose}.
+
+End User:
+This end user is not currently known, as KYC request has not been sent previously / This end user is [Name], located in [Country], according to a prior KYC request. This end user is associated with subaccount # [account_number] / deposit address [XXX] / withdrawal address [XXX] (depending on how they are identified).
+
+The [customer/end user] alerted for
+
+Conducting [#] onchain withdrawals, totaling [$$$], between [MM/DD/YYYY] and  [MM/DD/YYYY], to [blockchain] address [Address] (“Address 1”)
+Receiving [#] onchain deposits, totaling [$$$], between [MM/DD/YYYY] and  [MM/DD/YYYY], from [blockchain] address [Address] (“Address 1”)
+
+According to TRM, Address 1 is attributed to [ATTRIBUTED ENTITY NAME], which has high ownership risk due to being a [gambling entity / mixer / darknet market / etc.]. A two month review of the [Customer/ End User] identified onchain exposure to [explain attributable exposure of review]. In total, between [MM/DD/YYYY] and  [MM/DD/YYYY], the [Customer/ End User] was found to have a total of [$$$] of direct [and indirect] exposure to [High Risk ATTRIBUTED ENTITY NAME].
+
+[Depending on the type of high ownership risk present, explain why the activity appears unusual or not unusual for the customer/end user].
+
+If Focus identity is known: External research on the [Customer/End User] found [No Derogatory Information]. [Explain here if found]
+
+If Focus identity is not known: This end user’s KYC has not previously been requested; as such, their identity is not known and external research has not been completed. [ADD IF ESCALATING] A KYC request will be submitted as a result of this review.
+
+Based on the review outlined above, [no unusual activity-EXPLAIN IF UNUSUAL] was identified and the customer’s transactional activity is in line with its profile. [CLEARING ALERT/ESCALATING ALERT].
