@@ -1,7 +1,6 @@
-<<<<<<< HEAD
+
 # Trace - Investigation Toolkit
 
-![Trace Logo](icons/AppIcon.icns)
 
 Trace is a powerful investigation toolkit designed to streamline and automate investigative workflows. Built with Python and featuring a modern UI, Trace helps investigators collect, analyze, and manage data efficiently.
 
@@ -109,7 +108,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 =======
 # Trace
 a Compliance Operations Toolkit
-by Konrad Zielinski, Peyton Hamilton, and Zach Elkins (Note that NONE of this tool has been built with code experience, just the help of GPT and learning as-we-go)
+by Konrad Zielinski, Peyton Hamilton, and Zach Elkins (Note that NONE of this tool has been built with code experience, just the help from GPT, Claude, and learning as-we-go)
 
 ##### Problem #####
 Compliance analysts spend significant time manually gathering data, understanding a customer’s business model, pulling transactions, and drafting narratives—before even beginning their analysis. 
@@ -119,7 +118,6 @@ Transaction analysis involves manually accessing and searching Pi for the approp
 Each alert takes ~15–30 minutes of prep before true investigation begins.
 Time is spent on repetitive, non-analytical work.
 Streamlining this workflow will improve consistency across alerts and reduce the risk of errors–which often leads to rework across teams (Investigations, KYC, QA).
-
 
 ##### Needs as of 04/18/2025 #####
 
@@ -131,9 +129,7 @@ Stakeholder alignment with Investigations and Compliance Ops
 
 ##### The Solution #####
 
-An AI-powered Toolkit and Automation Engine. It will:
-Allow the investigator to choose an alert narrative template based on typology;
-Pull transaction data within a custom date range based on user input via Snowflake, saving on cost per query due to Circle’s AWS license rather than charging per query. This transaction data should always include: 
+An AI-powered Toolkit and Automation Engine. Trace allows investigators to choose an alert narrative template based on typology, pull transaction data within a custom date range based on user input via Snowflake (saving on cost per query due to Circle’s AWS license rather than charging per query). This transaction data will include: 
 
   A complete transaction history for the customer
   TRM and Elliptic data (with a breakdown of direct and indirect exposure)
@@ -154,8 +150,6 @@ Providing all documentation as a .zip file for upload to Unit21/other systems.
 Structural Needs of v1
 
   Okta Integration
-  OpenID Integration
-
 
 Functional Needs
 
