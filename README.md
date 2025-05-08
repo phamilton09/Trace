@@ -2,7 +2,7 @@
 # Trace - Investigation Toolkit
 
 
-Trace is a powerful investigation toolkit designed to streamline and automate investigative workflows. Built with Python and featuring a modern UI, Trace helps investigators collect, analyze, and manage data efficiently.
+Trace is an investigation toolkit that streamlines financial analysis tasks with three main functions: 1) capturing website screenshots as PDFs with source URL banners, 2) creating alert templates with placeholders for consistent reporting, and 3) processing transaction CSVs to produce detailed breakdowns of financial activity by category, blockchain, onchain exposure, and time period. The application features a tabbed interface with a "Run Case" function to execute multiple tasks simultaneously, dark mode support, and automatic saving of output files to organized investigation directories. In the future, Trace will generate customer summaries using AI tools like Glean and ChatAI (currently pending Okta integration).
 
 ## Features
 
